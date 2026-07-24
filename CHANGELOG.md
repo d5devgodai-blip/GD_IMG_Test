@@ -16,6 +16,15 @@ HEAD. Always `git tag` at HEAD right after pushing images, then purge + md5-veri
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-07-24
+
+Third release. Adds the 補強土 Ver16 main manual.
+
+### Manuals converted (chunks · image commit)
+- **補強土16_本体_v1** (補強土 Ver16 本体・主マニュアル, 第Ⅰ-Ⅲ編) — 360 chunks · `c6da4c6`.
+  First shipped manual with **pitfall-28 figure flatten**: 7 annotated screenshots re-rendered from
+  the PDF (raster-hash locate) so the rectangle/circle/arrow callouts are baked into the image.
+
 ## [1.1.0] — 2026-07-24
 
 Second release. Adds one manual, removes one, and re-points the tagless CDN at current content (the
@@ -59,5 +68,6 @@ Supabase path, not by a field in the map).
 - `manual-to-dify` skill + three-script pipeline (`build` → `postprocess` → `verify`) generalized
   for new manuals; shareable toolkit at `d:\manual-to-dify-toolkit`.
 
+[1.2.0]: https://github.com/d5devgodai-blip/GD_IMG_Test/releases/tag/v1.2.0
 [1.1.0]: https://github.com/d5devgodai-blip/GD_IMG_Test/releases/tag/v1.1.0
 [1.0.0]: https://github.com/d5devgodai-blip/GD_IMG_Test/releases/tag/v1.0.0
