@@ -10,6 +10,10 @@ the new version, date it, and `git tag -a vX.Y.Z` on that commit (new manual →
 fix → patch bump). `git describe --tags` then tells any clone its version.
 
 ## [Unreleased]
+- **補強土16 removed** — the manual is dropped from the KB set; its 18 CDN images
+  (`補強土16/補強土16_Image/`) were deleted from the host repo (`cc10860`) and the local folder
+  removed. Live manual count 10 → 9. (The `[1.0.0]` entry below stays as shipped history — that tag
+  did include 補強土16.)
 - **PoiCL_V123** (11th manual) — images published & renamed to `PoiCL_V123/PoiCL_V123_Image/`
   (`974ef3e`, pitfall-29 naming). Markdown/map deliverable still pending → will land as **v1.1.0**.
 
