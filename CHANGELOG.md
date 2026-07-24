@@ -16,6 +16,19 @@ HEAD. Always `git tag` at HEAD right after pushing images, then purge + md5-veri
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-07-24
+
+Patch to 補強土16_本体_v1: recovers content lost at build time.
+
+### Fixed
+- **補強土16_本体_v1** — the build didn't recurse into tables **nested inside a table cell**
+  (the green □■□■ callout boxes are an outer table wrapping an inner screenshot+prose table), so it
+  emitted a `(nested table)` placeholder and dropped every embedded screenshot. `cell_md` now recurses;
+  **9 screenshots recovered** (image32/33/110/111/112/117/192/193/194 · commit at tag) and one real
+  data table (対応形式/拡張子) that had been dropped. Also folded the pitfall-30 layout-table flatten
+  (image-left figure+caption / side-by-side / 設定条件 boxes) into `table_to_markdown` so the rebuild
+  keeps the 78 layout boxes flattened. Rebuilt clean (0 FAIL / 24), CDN md5-verified 9/9.
+
 ## [1.2.0] — 2026-07-24
 
 Third release. Adds the 補強土 Ver16 main manual.
@@ -68,6 +81,7 @@ Supabase path, not by a field in the map).
 - `manual-to-dify` skill + three-script pipeline (`build` → `postprocess` → `verify`) generalized
   for new manuals; shareable toolkit at `d:\manual-to-dify-toolkit`.
 
+[1.3.0]: https://github.com/d5devgodai-blip/GD_IMG_Test/releases/tag/v1.3.0
 [1.2.0]: https://github.com/d5devgodai-blip/GD_IMG_Test/releases/tag/v1.2.0
 [1.1.0]: https://github.com/d5devgodai-blip/GD_IMG_Test/releases/tag/v1.1.0
 [1.0.0]: https://github.com/d5devgodai-blip/GD_IMG_Test/releases/tag/v1.0.0
