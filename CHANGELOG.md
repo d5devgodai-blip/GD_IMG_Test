@@ -28,6 +28,10 @@ Patch to 補強土16_本体_v1: recovers content lost at build time.
   data table (対応形式/拡張子) that had been dropped. Also folded the pitfall-30 layout-table flatten
   (image-left figure+caption / side-by-side / 設定条件 boxes) into `table_to_markdown` so the rebuild
   keeps the 78 layout boxes flattened. Rebuilt clean (0 FAIL / 24), CDN md5-verified 9/9.
+- **補強土16_本体_v1 (.md polish, no image/tag change — images identical to v1.3.0):** `cell_md` now
+  keeps real `|`/newlines and escapes only at pipe-table emission, so non-table `<br>` become real line
+  breaks (140→0), a nested 対応形式/拡張子 data table survives as a real table instead of `\|…\|<br>` junk,
+  and image-RIGHT figure+caption boxes flatten too (pitfall 30/31).
 
 ## [1.2.0] — 2026-07-24
 
