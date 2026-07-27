@@ -16,6 +16,37 @@ HEAD. Always `git tag` at HEAD right after pushing images, then purge + md5-veri
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-07-27
+
+Twelfth manual: **PoiCL_web** — the PoiCL *website* (a scrape of `soft.godai.co.jp/soft/poicl/`
+`armarker.html` + `faq.html`), not a paginated document. 7 chunks, 1 image, verify 0 FAIL / 17.
+
+### Added
+- **PoiCL_web** (product key `PoiCL_web`, docx renamed `PoiCL_2.docx` → `PoiCL_web.docx` so the id
+  stays derived, never hardcoded — pitfall 29). Image pushed (1 file) and md5-verified.
+- **First no-PDF manual.** There is no `.pdf` at all, so there are no page numbers: `pdf_page` /
+  `pdf_page_end` are `null` everywhere and there is no `_toc_*.json`. What stands in as the origin
+  handle is **`source_url` per chunk, recovered from the docx hyperlink relationships**
+  (`word/_rels/document.xml.rels`) — the breadcrumb line ending each block carries the link to its
+  own page. `Page_IDn` markers are retained unchanged, so the md↔map contract and the downstream
+  code node keep working. The build **asserts zero `.pdf`**, so a later-added pdf fails loudly
+  rather than being silently ignored.
+- **First manual where the author's own `$$$` ARE the delimiters** (user instruction). Inverted
+  step 1: a `$$$` is real iff a `Page_IDn` line precedes it, and any *other* `$$$` becomes `---`
+  (elsewhere author `$$$` are stripped at build). The docx has **zero heading styles** — section
+  titles are the first non-empty paragraph of each block; 7 delimiters → 7 chunks exactly.
+- The repeated source-page breadcrumb (`よくある質問 - PoiCL`) moved out of chunk bodies into the map
+  as `page_title` — identical trailing text across five chunks hurts retrieval. Verify check 15
+  guards it.
+
+### Changed
+- `table_to_markdown` carve-out: a **2-col grid with NO header row** → `・label：value` list. The one
+  table (動作環境 spec sheet) had no header, so a pipe table promoted the data row
+  `パソコン | Windows 11 が動作する機種` into the header slot — misrepresenting content, not merely
+  looking ugly, so the usual "when unsure keep the table" default did not apply. Gated on a
+  `HEADER_WORDS` vocabulary so any real header row still keeps its table; logged to
+  `PoiCL_web_table_review.json` for user confirmation (verify WARN).
+
 ## [1.3.0] — 2026-07-24
 
 Patch to 補強土16_本体_v1: recovers content lost at build time.
