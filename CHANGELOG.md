@@ -16,6 +16,34 @@ HEAD. Always `git tag` at HEAD right after pushing images, then purge + md5-veri
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-07-29
+
+The `web/` batch goes **TEXT ONLY** (user instruction, same day v1.5.0 published it). All 96 images
+added in v1.5.0 are removed again — from the repo, the maps and the markdown. 29 chunks unchanged.
+**Scope is `web/` only**: the other 12 manuals' 3,981 tracked image files are untouched.
+
+### Removed
+- **All 96 images deleted from the repo** (15 dirs under `web/*/*_Image/`), staged with an explicit
+  pathspec — verified 96 deletions, 0 other paths. **Tagged at HEAD**, because jsDelivr keeps serving
+  a *deleted* file from the previous tag until a newer one exists (the v1.0.0 incident): without
+  v1.6.0 every removed image would still be served by v1.5.0.
+- `![img_x_y]` refs gone from all 18 `.md`; `image_map.json` is `{}`; the `images` block is **omitted**
+  from every chunk in `<ID>_map.json` (an absent fact is an absent key — consumers must use
+  `.get("images", {})`, same convention as the top-level `source_url`).
+
+### Changed
+- Suppression is **one gate in the build**, `EMIT_IMAGES = False`, enforced at `para_images()` — which
+  starves the body refs, the table carve-outs, the manifest and the maps simultaneously. Chosen over a
+  post-hoc strip so a rebuild cannot quietly bring the images back. `extract_images()` also deletes any
+  `<ID>_Image/` dir a previous run left, so nothing exists locally for a stray `git add` to re-stage.
+- Image-bearing paragraphs still count as **positional placeholders** in table cells, so the
+  side-by-side alignment the price-sheet carve-out depends on is unaffected by the removal.
+- **New verify check 17b** pins the decision from both ends: no `![img_` in the md, no `image_map`
+  entries, no `images` block in the map, and **no image dir on disk**. It warns loudly if
+  `EMIT_IMAGES` is ever flipped back, since that needs a fresh push *and* a new tag.
+- pitfall 28 overlay detection is skipped while images are suppressed — there is no figure to flatten,
+  so the two unflattenable screenshots in `セットアップガイドWeb認証版` are no longer reported.
+
 ## [1.5.0] — 2026-07-29
 
 Manuals 13–30: the **`web/` batch — 18 SEPARATE manuals** captured from the 五大開発 support site
