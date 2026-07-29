@@ -1,5 +1,9 @@
 _tools/
 *.py
+__pycache__/
+# Per-manual CLAUDE.md files stay local, like every other manual's (none are tracked).
+CLAUDE.md
+web/CLAUDE.md
 PowerSSA/*.docx
 PowerSSA/*.pdf
 PowerSSA/*.md
@@ -54,3 +58,9 @@ PoiCL_web/*.docx
 PoiCL_web/*.pdf
 PoiCL_web/*.md
 PoiCL_web/*.json
+# web/ batch: 18 separate no-PDF manuals, one folder each.
+# The <ID>_Image/ dirs are deliberately NOT ignored — they are the jsDelivr payload.
+web/*/*.docx
+web/*/*.pdf
+web/*/*.md
+web/*/*.json
