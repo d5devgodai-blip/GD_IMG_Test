@@ -16,6 +16,70 @@ HEAD. Always `git tag` at HEAD right after pushing images, then purge + md5-veri
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-07-29
+
+Manuals 13–30: the **`web/` batch — 18 SEPARATE manuals** captured from the 五大開発 support site
+(`soft.godai.co.jp/soft/support/…`) and the A4 setup / license-update leaflets it links to (HASP・
+Sentinel protect keys, ライセンス認証, セットアップガイド). All 全製品共通, none product-specific.
+**18/18 green — 378 OK / 24 WARN / 0 FAIL, 29 chunks, 96 images.**
+
+### Added
+- **18 manuals, each its own** folder / deliverables / CDN path / Dify product key (user's choice over
+  one combined manual). Images pushed (96 files) and md5-verified.
+- **ONE parametrized script trio for all 18** (the CRAFT5 precedent), driven by `run_web.py <id>` /
+  `--all` / `--list`, which exists so the build→postprocess→verify invariant can't be broken by habit.
+- **No-PDF carve-out applied 18×** (pitfall 32, user-confirmed): `pdf_page`/`pdf_page_end` null, no
+  `_toc_*.json`, no figure flatten; every build asserts zero `.pdf`.
+- **`source_url` from the trailing `出典: https://…` line** — 9 files have one, and it is emitted
+  **ONCE as a top-level key** of `chunk_map.json` / `<ID>_map.json`, never repeated per chunk and
+  never per image (user 2026-07-29). Omitted entirely for the 9 files with no 出典 line, so an absent
+  fact is an absent key rather than N nulls. Any *other* link stays inline in the body as-is,
+  including rels-only targets (appended as `（url）`).
+  ⚠️ The map therefore has one non-`Page_IDn` key whose value is a string — lookups by page id are
+  unaffected, but a consumer that *iterates* map keys must skip it.
+- **Author `$$$` are the delimiters, but 9 of 18 files have none** → one chunk for the whole file,
+  delimiter emitted by the build. A `$$$` may also be a table of its own or ride in the last cell of
+  a content table; a tiny trailing footer after the last `$$$` is folded into the final chunk.
+- Images live at `web/<ID>/<ID>_Image/` — one level deeper than usual; verify check 6b asserts the CDN
+  segment equals the repo-relative image dir. 8 of the 18 ids are non-ASCII (percent-encoded).
+- 6 decorated docx names normalized (decoration → `_`, every version part kept), e.g.
+  `セットアップガイド(A4) 【ドライバレス版】` → `セットアップガイド_A4_ドライバレス版`, so ids stay derived.
+
+### Table handling
+- **3 real tables KEPT** as pipe tables (`HaspMonitor` No./製品名 32 rows, `HaspProtect` エラーコード/
+  状態, `sentinel_protect_key_support` 項目/内容) — all fully bordered with genuine header rows. The
+  other 6 table-bearing files are borderless `①②③` layouts and were flattened.
+- New carve-outs, worth promoting to the skill: **inside borders as a corroborating "real table"
+  signal**; **step-glyph layout** (col 0 holds only `①…⑳`/`・`) → glyph in front of its text;
+  **parallel multi-line cells** → zip into `label：value`, only when the line counts match.
+
+### Fixed
+- **Silent text loss in a table carve-out.** A figure/caption branch testing `any(col0_img) and not
+  any(col1_img)` treated a `① | text` row's *text* cell as the image and dropped all five text cells
+  of `ネットワーク型USB…` — visible only because an image went missing too. The branch now requires the
+  image column to be *consistently* image-only and the other column to hold no image at all.
+- **New verify check 18, CONTENT COVERAGE** — every source paragraph ≥8 chars must appear in the md,
+  compared whitespace-insensitively. This is the net for exactly the class of bug above, where every
+  id-consistency check stays green while content vanishes. Generalized into the root `CLAUDE.md`.
+- **Double image registration**: reading a cell twice (joined + per-paragraph) registered each in-cell
+  image under two ids and orphaned one set, because `img_id()` both mints an id and registers a
+  manifest entry. Cells are now read once.
+- **`is_listy` bulleted non-lists**: `<w:numId w:val="0"/>` is OOXML's "numbering REMOVED" sentinel,
+  so every A4 chapter heading was getting a bogus `・` prefix.
+- **Overlay detection delegated** to repo-root `figure_flatten.paragraph_has_overlay_shapes`. A local
+  "any shape-ish node" reimplementation fires on every legacy VML picture, because `v:shape` is what
+  *hosts* `v:imagedata`.
+- `.gitignore`: `web/*/` deliverables ignored (image dirs deliberately NOT), plus `__pycache__/` and
+  the per-manual `CLAUDE.md` files, which match the existing convention of staying untracked.
+
+### Known / not fixed
+- `セットアップガイドWeb認証版` has **2 annotated screenshots that cannot be flattened** (pitfall 28
+  needs a PDF, and there is none). Reported as a verify WARN, not silently accepted.
+- `20180531-driver` says "下記のリンクからダウンロード" but the docx contains **no such link** — the page's
+  download anchor did not survive the Word capture. Not invented; for the author to fix.
+- `20180531-driver`'s `img_1_2`/`img_1_4` are a decorative 39×39 ↓ arrow, pushed as-is pending a
+  decision on dropping it.
+
 ## [1.4.0] — 2026-07-27
 
 Twelfth manual: **PoiCL_web** — the PoiCL *website* (a scrape of `soft.godai.co.jp/soft/poicl/`
