@@ -16,6 +16,43 @@ HEAD. Always `git tag` at HEAD right after pushing images, then purge + md5-veri
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-07-30
+
+The `web/` batch is **image-bearing again** (user instruction), reversing v1.6.0's text-only
+decision. **89 image files pushed, 93 image ids across 15 of the 18 manuals**; 18/18 verify green
+(22 OK / 0 FAIL each), 29 chunks unchanged. **Scope is `web/` only.**
+
+### Added
+- **89 images re-pushed** to `web/*/*_Image/` (15 dirs), staged with an explicit glob pathspec —
+  verified 89 additions, 0 deletions, nothing outside an `_Image/` dir. **Tagged at HEAD**, without
+  which jsDelivr would keep resolving the maps' tagless urls to v1.6.0 and serve 404 for every one.
+- `![img_x_y]` refs are back in the md at their original positions, `image_map.json` is populated,
+  and each chunk in `<ID>_map.json` carries its nested `images` block again.
+
+### Changed
+- `EMIT_IMAGES = True` — the same single gate flipped back, so body refs, table carve-outs, the
+  manifest and the maps returned together. The two states are exact opposites; neither half-applies.
+- **Verify check 17b now works in both directions.** It used to assert only the suppressed state and
+  merely *warn* if the flag was on; it now checks the enabled state too (md refs == `image_map` ==
+  the map's `images` blocks, and an image dir actually on disk), so a half-applied flip fails either
+  way. The push-needs-a-tag reminder is kept as a WARN.
+- pitfall 28 overlay detection is live again: the 2 unflattenable annotated screenshots in
+  `セットアップガイドWeb認証版` are reported once more (no PDF exists to flatten them from).
+
+### Fixed
+- `run_web.py` died on console encoding on this Japanese-Windows box: a child writing a Japanese
+  section name to a pipe emits cp932 that `encoding="utf-8"` could not decode, and the driver writing
+  an em dash to a redirected stdout died on cp932. UTF-8 is now pinned on the children (`PYTHONIOENCODING`
+  / `PYTHONUTF8` in the child env) and on the driver's own streams. A reporting-layer fault was
+  aborting an otherwise green run.
+
+### Note
+- **4 docx were re-saved by the author on 2026-07-30** (`スタンドアロン型USB…_A4_DL版`,
+  `スタンドアロン型USBドライバレスライセンス更新_A4`, `スタンドアロン型USBライセンス更新_A4_DL版`,
+  `ネットワーク型USBのご使用について_A4`) and now carry fewer, all-PNG media — hence 89 files rather
+  than v1.5.0's 96. This is a source change, not a pipeline regression: every image anchor in every
+  docx resolves to a rel and reaches the md (93 anchors = 93 refs, 0 unresolved).
+
 ## [1.6.0] — 2026-07-29
 
 The `web/` batch goes **TEXT ONLY** (user instruction, same day v1.5.0 published it). All 96 images
