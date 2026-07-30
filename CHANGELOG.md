@@ -16,6 +16,34 @@ HEAD. Always `git tag` at HEAD right after pushing images, then purge + md5-veri
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-07-30
+
+**Every `web/` batch image file is now named after the `image_map` key that points at it** —
+`img_1_1.png`, not Word's opaque `c841a41da01dc4b9ace1f85faf1a9ed5a01cd717.png` (user request).
+**93 files** (up from v1.7.0's 89), 18/18 green (23 OK / 0 FAIL each), 29 chunks unchanged.
+**Scope is `web/` only** — the other 12 manuals keep their frozen `imageN.ext` names and published urls.
+
+### Changed
+- **Image extraction is LAZY.** The build writes each file from `img_id()`, at the moment the id is
+  minted, instead of dumping all of `word/media/` up front and pruning afterwards — the file name is
+  not knowable until the id exists. A media nothing references is now never written at all, which
+  demotes the postprocess prune (step 12) to a guard that should always report `[]`.
+- **93 files, not 89**: an id is a POSITION, a file is CONTENT, so a media reused at N positions is
+  written N times, once per id (4 cases: `20180531-driver` 5 ids/4 media, `SentinelDriver761` 10/9,
+  `セットアップガイドWeb認証版` 16/14). Pointing the later ids at the first id's file would save a few
+  KB and make the name lie about which chunk the image belongs to — the opposite of the point.
+- Git recorded 89 renames (R100) + 4 additions. The manifest gained a **`source_media`** field, since
+  the rename makes the docx original otherwise unguessable.
+
+### Added
+- **Verify check 6c** pins the invariant from both directions: every url's basename equals its id,
+  and no file sits in the dir that no id claims (the orphan case the prune step used to catch).
+
+### Note
+- Every v1.7.0 url is **dead** as of this tag. Nothing downstream had consumed them — this batch is
+  still pending Dify ingest — but the tag bump is what makes both the removal and the new names take
+  effect on jsDelivr. All 93 purged and md5-verified.
+
 ## [1.7.0] — 2026-07-30
 
 The `web/` batch is **image-bearing again** (user instruction), reversing v1.6.0's text-only
