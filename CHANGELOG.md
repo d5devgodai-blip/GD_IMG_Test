@@ -16,6 +16,82 @@ HEAD. Always `git tag` at HEAD right after pushing images, then purge + md5-veri
 
 ## [Unreleased]
 
+**No image push** — nothing in this section changes a CDN url, so no tag bump is due yet. The map and
+markdown edits below are gitignored here; their history lives in `d5devgodai-blip/Dify_file_manager`.
+
+### Added
+- **`preflight_guard.py` (repo root) — a new pipeline step 0.** The invariant becomes
+  `preflight_guard.py` → `build_*.py` → `postprocess_*.py` → `verify_*.py`. The guard lists every
+  paragraph the build's skip rules would discard and demands structural proof each is discardable,
+  exiting 1 with the offending paragraphs named. It runs *before* the md is generated, because
+  afterwards there is nothing left to compare against. Also reports fully-hidden paragraphs carrying
+  real text, and the text-box paragraph count.
+- **Pitfall 35 — a paragraph STYLE is never proof of what a paragraph IS.** QA reported that
+  CRAFT5_8_法面_v1's 用語 glossary had lost every term label. The author had styled each term
+  (`のり面求積図`, `のり枠、フレーム`, `ブロック`, …) with Word's built-in `toc 1` style, and
+  `build_*.py` skipped anything styled `toc` — so the terms went and the definitions stayed. Across
+  the batch the rule deleted **76 content paragraphs**: CRAFT5_8_法面_v1 24, CRAFT5_8_本体_v1 47,
+  PowerSSA_8_本体_v1 3, MovieCaptureTool_1_本体_v1 1, PoiCL_1_本体_v2 1. A genuine generated-TOC line
+  always carries proof Word wrote it (a `_Toc…` hyperlink anchor, a `PAGEREF`/`TOC` field, or a
+  dot-leader + page-number tail), so builds must call `preflight_guard.is_real_toc_entry(p)` instead
+  of testing the style name. Supersedes pitfall 28's narrower "gate the 目次-skip on
+  no-image-in-the-paragraph" — the image test was one symptom, not the rule.
+- **Pitfall 34 added to the SKILL.md index** (page numbers/image placement must be re-derived from
+  the PDF); it existed in `pitfalls.md` but had never been listed.
+
+### Changed
+- **`CLAUDE.md`**: the pipeline invariant now names the preflight and carries both new rules — the
+  style-is-not-evidence gate, and the requirement that content coverage be positional.
+
+### Known issues
+- **The 76 deleted paragraphs are still missing from the published `.md` files.** The guard prevents
+  recurrence; it does not repair what already shipped. Being corrected by hand.
+- **The content-coverage check is not positional, which is why this shipped 13 times.** It asks "does
+  this text appear ANYWHERE in the md", and a term like `のり面求積図` occurs all through the body —
+  so 65 of the 76 deletions passed it. Pitfall 35 specifies the replacement (anchor on paragraphs
+  occurring exactly once, longest-increasing-subsequence spine, require every remaining paragraph
+  between its neighbouring anchors; 646 anchors on CRAFT5_8_法面_v1, and it finds them). **The 14
+  verify scripts are unchanged** — documented, not implemented.
+- **The DOCX sources do not cover the whole printed manual.** Page-level coverage of PDF text against
+  the delivered md runs 52–88% (Anchor 52%, CRAFT5本体 88%). Of 222 pages below 60%, **209 were never
+  in the DOCX at all** and only 1 was a genuine pipeline loss (補強土_16_概算工事費編_v1 PDF p.72, cell
+  「特殊作業員　普通作業員」). Systematically absent from the Word sources: front matter (はじめに /
+  使用許諾契約と著作権保護 / 表記規則), the サポート情報・お問い合わせ・奥付 tail in 8 of 13 manuals, and
+  **Anchor's entire appendix** — its DOCX stops at PDF p.127, so pp.128–214 (報告書 output samples,
+  ~40% of the manual) were never available. Needs the complete Word sources, not pipeline work.
+- **Pitfall numbering has diverged from the toolkit repo.** This repo lacks the "ask whether it is a
+  software manual" pitfall (it is a CLAUDE.md hard rule here instead), so from 34 onward the numbers
+  are offset by one: this repo's 34/35 are `godai-support-ai`'s 35/36. Cross-references inside each
+  repo are self-consistent; renumbering would break them, so it was left alone.
+
+### Fixed
+- **77 wrong `pdf_page` values corrected across 6 manuals**, verified against the PDFs themselves:
+  CRAFT5_8_本体_v1 38 (a contiguous run of sections `1.17`–`1.37` had drifted +2 to +20 pages),
+  補強土_15_本体_v1 17, CRAFT5_8_法面_v1 11, PowerSSA_8_本体_v1 8, Anchor_18_本体_v1 2,
+  補強土_16_概算工事費編_v1 1. Plus 69 `pdf_page_end` values and 1,284 image entries. All six had been
+  **published** while every id-consistency, count and plausibility check stayed green — none of them
+  opens the PDF. Re-verification: 0 mismatches across all 13 paged manuals.
+- **PowerSSA_8_本体_v1 and 補強土_15_本体_v1 image pages** — ~85% of their image entries (512/612 and
+  590/666) recorded a page EARLIER than the section the image belongs to. Both now inherit their host
+  chunk's range, matching the other 11 manuals. PowerSSA: image errors 63 → 2, images confirmed on
+  their recorded page 76 → 414.
+- **`_toc_CRAFT5_8_本体_v1.json` `secnum`** synced to the map's printed section numbers (189 of 199),
+  so the toc and the map no longer disagree about what section a chunk is. Only `secnum` changed.
+
+### Added
+- **`verify_pages_images.py`** — verification grounded in the PDF rather than in self-consistency:
+  each chunk's heading is printed on the page `pdf_page` names; each image's raster is on the page
+  `image_map` claims; images sharing a page appear in the md in the PDF's reading order. `--html`
+  writes a visual triage report pairing each finding with the rendered page, image outlined in red.
+- **`.claude/skills/github-repos/`** — routing and push rules for the three repos this project pushes
+  to, including the "one working tree, three clones — never three remotes" rule.
+
+### Known issues
+- 29 images sit >2 pages outside their recorded range; 54 are ordered differently in the md than the
+  PDF lays them out. Unverified leads, not confirmed defects.
+- `補強土_16_概算工事費編_v1` verify: 3 FAIL, pre-existing (md 49 `$$$` segments vs 39 chunks).
+- 🚨 The 50 MB jsDelivr cap still blocks any image push — see the note at the top of this file.
+
 ## [1.8.0] — 2026-07-30
 
 **Every `web/` batch image file is now named after the `image_map` key that points at it** —
