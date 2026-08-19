@@ -1,25 +1,20 @@
 {
-  // Static image CDN for the Dify manual knowledge base.
+  // Static image CDN for the Dify manual knowledge base, replacing jsDelivr
+  // (which caps a package at 50 MB and refuses this ~178 MB repo outright).
   //
-  // Replaces jsDelivr, which refuses to serve this repo at all: it caps a package
-  // at 50 MB and GD_IMG_Test is ~168 MB (see CLAUDE.md "Images & CDN" blocker).
+  // This is a PAGES project, deliberately not a Worker with static assets.
+  // Both serve files identically, but a Workers Custom Domain requires the zone
+  // to be hosted on Cloudflare, and godai.co.jp is not -- it answers from
+  // ns.godai.co.jp / ns.offer.ne.jp. Pages is the only one of the two that
+  // accepts a CNAME for a subdomain from an external DNS provider, so
+  // img.godai.co.jp can point here without moving company DNS (and mail) to
+  // Cloudflare. Same reason R2 is not viable on godai.co.jp.
   //
-  // The assets directory is the REPO ROOT on purpose. Every url in the maps is
-  // "<host>/<repo path>", so mounting the root keeps the path segment after the
-  // host byte-identical to the jsDelivr urls -- the pitfall-17 invariant
-  // (image dir repo path == CDN url segment) is preserved and only the host moves.
-  //
-  // NOTE: "name" must match the Workers project already connected to this repo in
-  // the Cloudflare dashboard, otherwise `wrangler deploy` creates a SECOND worker.
+  // Output dir is the repo ROOT on purpose: a url path is resolved relative to
+  // it, so keeping it at the root makes the published url path identical to the
+  // repo path. That preserves the pitfall-17 invariant (image dir repo path ==
+  // CDN url segment) and reduces the migration to swapping the host in the maps.
   "name": "gd-img-test",
   "compatibility_date": "2026-08-19",
-  "assets": {
-    "directory": "./",
-    // Serve paths exactly as requested: no /foo -> /foo/index.html rewriting,
-    // no trailing-slash redirects. A url must map 1:1 onto a repo path.
-    "html_handling": "none",
-    // Miss -> plain 404, so a broken image url fails loudly instead of
-    // silently returning some fallback page.
-    "not_found_handling": "none"
-  }
+  "pages_build_output_dir": "."
 }

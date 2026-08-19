@@ -1,7 +1,0 @@
-# Everything tracked here is an image except these. Keep the deployment to the
-# payload only -- the repo is the jsDelivr/CDN host, not a website.
-.git/
-.gitignore
-.assetsignore
-wrangler.jsonc
-*.md
