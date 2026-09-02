@@ -1,6 +1,6 @@
 {
   // Static image CDN for the Dify manual knowledge base, replacing jsDelivr
-  // (which caps a package at 50 MB and refuses this ~178 MB repo outright).
+  // (which caps a package at 50 MB and refuses this ~170 MB repo outright).
   //
   // This is a PAGES project, deliberately not a Worker with static assets.
   // Both serve files identically, but a Workers Custom Domain requires the zone
@@ -10,11 +10,25 @@
   // img.godai.co.jp can point here without moving company DNS (and mail) to
   // Cloudflare. Same reason R2 is not viable on godai.co.jp.
   //
-  // Output dir is the repo ROOT on purpose: a url path is resolved relative to
-  // it, so keeping it at the root makes the published url path identical to the
-  // repo path. That preserves the pitfall-17 invariant (image dir repo path ==
-  // CDN url segment) and reduces the migration to swapping the host in the maps.
-  "name": "gd-img-test",
+  // HOW IT IS DEPLOYED (2026-09-02): a GIT BUILD, not direct upload.
+  // The project is connected to github.com/d5devgodai-blip/GD_IMG_Test and
+  // rebuilds on every push to main. Build command: none. Output dir: the repo
+  // root, so the published url path equals the repo path and the pitfall-17
+  // invariant (image dir repo path == CDN url segment) holds by construction.
+  //
+  // This file OVERRIDES the dashboard build settings, and "name" MUST equal the
+  // Pages project name or the build fails. Two rules follow:
+  //   * Never point pages_build_output_dir at a gitignored staging dir. The
+  //     build runs on a clean clone, where such a dir does not exist, and every
+  //     build fails with "output directory not found".
+  //   * Never rename the project without changing "name" here in the same push.
+  //
+  // Git builds replace the old direct-upload flow, and that is the point: the
+  // build clones from GitHub, which is the source of truth. The local *_Image/
+  // dirs are routinely deleted for disk space, and that no longer risks
+  // publishing an empty site -- but it does mean an image must be PUSHED to
+  // GitHub to reach the CDN. There is no local payload to assemble any more.
+  "name": "gd-img-cdn",
   "compatibility_date": "2026-08-19",
   "pages_build_output_dir": "."
 }
