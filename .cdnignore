@@ -1,0 +1,20 @@
+# Paths that stay in the GitHub repo but are NOT published to the gd-img-cdn
+# Pages site. One repo-relative directory (or file) per line; blank lines and
+# '#' comments ignored.
+#
+# Applied by cdn_exclude.sh, which runs as the Pages build command. Pages builds
+# from a fresh clone, so deleting from that clone withholds a file from the CDN
+# without touching GitHub. Excluded files also stop counting toward the Pages
+# 20,000-file limit.
+#
+# A listed path that does NOT exist fails the build on purpose: a typo here
+# would silently publish something meant to be withheld.
+
+# PoiCL v1.2 images, superseded by PoiCL_V123/. Nothing on the CDN points here --
+# only the retired jsDelivr-era PoiCL_1_本体_v1 map does.
+PoiCL_Image
+
+# 補強土 Ver15 本体, retired in favour of Ver16 (user 2026-09-02).
+# Deliberate breakage: 補強土_15_本体_v2_map.json (+ its image_map.json) still
+# carries 666 urls under this path, and they 404 once this exclusion is live.
+補強土/補強土15_Image

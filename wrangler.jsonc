@@ -12,9 +12,18 @@
   //
   // HOW IT IS DEPLOYED (2026-09-02): a GIT BUILD, not direct upload.
   // The project is connected to github.com/d5devgodai-blip/GD_IMG_Test and
-  // rebuilds on every push to main. Build command: none. Output dir: the repo
-  // root, so the published url path equals the repo path and the pitfall-17
-  // invariant (image dir repo path == CDN url segment) holds by construction.
+  // rebuilds on every push to main. Output dir: the repo root, so the published
+  // url path equals the repo path and the pitfall-17 invariant (image dir repo
+  // path == CDN url segment) holds by construction.
+  //
+  // Build command: `bash cdn_exclude.sh` (a PROJECT setting -- Pages takes no
+  // build command from this file). It deletes the paths listed in .cdnignore
+  // from the build's clone, which is how an image dir stays in GitHub but off
+  // the CDN; GitHub is untouched and the withheld files stop counting toward the
+  // 20,000-file limit. To change WHAT is withheld, edit .cdnignore, not the
+  // dashboard. Currently withheld: PoiCL_Image/ (superseded by PoiCL_V123/) and
+  // 補強土/補強土15_Image/ (Ver15 retired for Ver16 -- its map's 666 urls 404 by
+  // design). Anything listed there but absent fails the build on purpose.
   //
   // This file OVERRIDES the dashboard build settings, and "name" MUST equal the
   // Pages project name or the build fails. Two rules follow:
