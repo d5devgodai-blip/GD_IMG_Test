@@ -3,21 +3,55 @@
 All notable changes to this project are recorded here. The **project version is the git tag** —
 run `git describe --tags` to see which version a clone is at. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com); this repo is the manuals→Dify pipeline **and** the
-jsDelivr image host (`d5devgodai-blip/GD_IMG_Test`).
+image host (`d5devgodai-blip/GD_IMG_Test`), served by the Cloudflare Pages project `gd-img-cdn`.
 
 **How to version a push:** add your change under `[Unreleased]`; when you push a release, rename it to
 the new version, date it, and `git tag -a vX.Y.Z` on that commit (new manual → minor bump; image/text
 fix → patch bump). `git describe --tags` then tells any clone its version.
 
-⚠️ **Tagging is MANDATORY on any image push, not optional.** jsDelivr resolves the tagless CDN URLs
-(the scheme every map uses) to the **latest git tag**, not `main` HEAD. So images added after the
-newest tag 404, and images deleted after it keep serving from the tag — until a new tag is pushed at
-HEAD. Always `git tag` at HEAD right after pushing images, then purge + md5-verify the CDN.
+ℹ️ **Tagging is NO LONGER required for image pushes.** It used to be mandatory because jsDelivr
+resolved the maps' tagless CDN urls to the latest git tag rather than `main` HEAD. Since the
+2026-09-02 move to Cloudflare Pages (`gd-img-cdn`), the CDN rebuilds from `main` on every push —
+there is no tag resolution and no purge step. Tags remain useful as plain release markers, nothing
+more.
 
 ## [Unreleased]
 
-**No image push** — nothing in this section changes a CDN url, so no tag bump is due yet. The map and
-markdown edits below are gitignored here; their history lives in `d5devgodai-blip/Dify_file_manager`.
+### Changed
+- **🚨 CDN MIGRATED: jsDelivr → Cloudflare Pages (`gd-img-cdn`), 2026-09-02.** The image host is now
+  `https://gd-img-cdn.pages.dev/`, a Pages project git-connected to this repo that rebuilds from
+  `main` on every push and serves the repo ROOT — so the published url path still equals the repo
+  path and the pitfall-17 invariant is untouched.
+  - **Why:** jsDelivr caps a package at 50 MB and this repo is ~170 MB, so it returned
+    `403 Package size exceeded the configured limit of 50 MB` for anything not already edge-cached.
+    The newest manual (`webkey_代理認証`, pushed at `988c0e2`) was 403 in production; older urls
+    survived only on grandfathered cache that could never be refreshed. Measured directly:
+    `webkey_代理認証/img_2_11.png` → jsDelivr **403**, Pages **200**.
+  - **Why Pages and not a Worker:** a Workers Custom Domain requires the zone to be hosted on
+    Cloudflare, and `godai.co.jp` answers from `ns.godai.co.jp` / `ns.offer.ne.jp`. Only Pages can
+    later accept a CNAME for a subdomain from an external DNS provider.
+  - **Rules retired:** mandatory tag bumps on every image add/remove, and the purge + md5 dance.
+    Neither concept exists on Pages. `CLAUDE.md` updated accordingly.
+  - **Verified:** build uploaded 4,109 files (matches `git ls-tree` exactly); 30/30 md5 matches
+    against GitHub raw across every top-level image dir and all 19 `web/<manual>` subdirs, including
+    the percent-encoded Japanese paths.
+- **`wrangler.jsonc`** now describes a git build: `name` = `gd-img-cdn`, `pages_build_output_dir` =
+  `"."`. Note this file is the **source of truth** for those fields — the dashboard cannot override
+  them — and it must never point at a gitignored staging dir, since builds run on a clean clone.
+
+### Added
+- **`Cloudflare/` (gitignored here)** — the map deliverables rewritten from jsDelivr urls to
+  `https://gd-img-cdn.pages.dev/`, 8,337 urls across 32 manuals, as
+  `Cloudflare/<software|web>/<ID>/<ID>_map.json` + `image_map.json`. The jsDelivr originals are left
+  untouched. Software map versions bump (`_v1`→`_v2`, `PoiCL_1_本体_v2`→`_v3`, `PoiCL_1_本体_v1`
+  skipped as superseded); `web/` slugs are unversioned by design and keep their names. These are
+  published to `Dify_file_manager`, never committed here — this repo's directory paths ARE cdn urls.
+
+### Removed
+- The **jsDelivr 50 MB BLOCKER** note — resolved by the migration rather than worked around.
+
+**Earlier unreleased pipeline work** (predates the CDN migration above). The map and markdown edits
+below are gitignored here; their history lives in `d5devgodai-blip/Dify_file_manager`.
 
 ### Added
 - **`preflight_guard.py` (repo root) — a new pipeline step 0.** The invariant becomes

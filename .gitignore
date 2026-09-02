@@ -4,63 +4,30 @@ __pycache__/
 # Per-manual CLAUDE.md files stay local, like every other manual's (none are tracked).
 CLAUDE.md
 web/CLAUDE.md
-PowerSSA/*.docx
-PowerSSA/*.pdf
-PowerSSA/*.md
-PowerSSA/*.json
-Anchor/*.docx
-Anchor/*.pdf
-Anchor/*.md
-Anchor/*.json
-補強土/*.docx
-補強土/*.pdf
-補強土/*.md
-補強土/*.json
-GGRAPH/*.docx
-GGRAPH/*.pdf
-GGRAPH/*.md
-GGRAPH/*.json
-Formap/*.docx
-Formap/*.pdf
-Formap/*.md
-Formap/*.json
-CRAFT5/*.docx
-CRAFT5/*.pdf
-CRAFT5/*.md
-CRAFT5/*.json
-CRAFT5/*.doc
-PoiCL/*.docx
-PoiCL/*.pdf
-PoiCL/*.md
-PoiCL/*.json
-最適擁壁/*.docx
-最適擁壁/*.pdf
-最適擁壁/*.md
-最適擁壁/*.json
-MovieCaptureTool/*.docx
-MovieCaptureTool/*.pdf
-MovieCaptureTool/*.md
-MovieCaptureTool/*.json
-補強土16/*.docx
-補強土16/*.pdf
-補強土16/*.md
-補強土16/*.json
-補強土16/*.py
-補強土16_概算工事費編/*.docx
-補強土16_概算工事費編/*.pdf
-補強土16_概算工事費編/*.md
-補強土16_概算工事費編/*.json
-補強土16_本体_v1/*.docx
-補強土16_本体_v1/*.pdf
-補強土16_本体_v1/*.md
-補強土16_本体_v1/*.json
-PoiCL_web/*.docx
-PoiCL_web/*.pdf
-PoiCL_web/*.md
-PoiCL_web/*.json
-# web/ batch: 18 separate no-PDF manuals, one folder each.
-# The <ID>_Image/ dirs are deliberately NOT ignored — they are the jsDelivr payload.
+# Two parents, one folder per manual, each named after its ledger base name
+# (File_name_manager/管理台帳.xlsx — CLAUDE.md "Naming"):
+#   software/<ID>/   14 paged manuals, <ID> = <Software>_<Major>_<Type>_v<N>  (sheet 1)
+#   web/<ID>/        18 no-PDF support pages, <ID> = the page slug            (sheet 2)
+# Sources + deliverables stay local; the <ID>_Image/ dirs are deliberately NOT ignored,
+# they are the jsDelivr payload this repo exists to serve, and their repo path MUST
+# equal the CDN url segment (pitfall 17).
+software/*/*.docx
+software/*/*.doc
+software/*/*.pdf
+software/*/*.md
+software/*/*.json
 web/*/*.docx
+web/*/*.doc
 web/*/*.pdf
 web/*/*.md
 web/*/*.json
+
+# Map deliverables rewritten for the Cloudflare Pages CDN. Never committed HERE:
+# this repo is the image host, where a directory path IS the published url, so a
+# committed Cloudflare/ would publish the maps at gd-img-cdn.pages.dev/Cloudflare/.
+# They belong in Dify_file_manager instead.
+Cloudflare/
+
+# Obsolete: staging tree for the old direct-upload flow, kept ignored so a stale
+# local copy can never be committed. Pages now builds from GitHub (see wrangler.jsonc).
+_cdn_payload/
